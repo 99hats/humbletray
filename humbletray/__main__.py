@@ -1,1 +1,0 @@
-from humbletray import main

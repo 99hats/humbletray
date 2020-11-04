@@ -1,4 +1,4 @@
-datas = [("humbletray/templates", "justpy/templates"), ("leaf.png", ".")]
+datas = [("./templates", "justpy/templates"), ("leaf.png", ".")]
 hiddenimports = [
     "pystray._win32",
     "schedule",
