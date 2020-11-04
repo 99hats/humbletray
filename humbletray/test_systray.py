@@ -2,11 +2,11 @@ from humbletray.systray import run_gui
 import justpy as jp
 from humbletray import systray
 from pystray import MenuItem, Menu
-from loguru import logger
+# from loguru import logger
 import schedule
 import time
 
-logger.add("humble.log")
+# logger.add("humble.log")
 wp = jp.WebPage(delete_flag=False)
 
 
@@ -18,18 +18,18 @@ def start_server(iq):
 
 def open():
     print("open")
-    logger.info("open")
+    # logger.info("open")
 
 
 def job():
-    logger.info("I'm working!")
+    # logger.info("I'm working!")
     time.sleep(10)
 
 
 schedule.every(10).seconds.do(job)
 
 
-@logger.catch
+# @logger.catch
 def main():
 
     menu = [

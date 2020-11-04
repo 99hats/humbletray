@@ -6,7 +6,7 @@ import time
 from multiprocessing import Process, freeze_support, Queue
 import justpy as jp
 from humbletray import chromeapp
-from loguru import logger
+# from loguru import logger
 
 q = Queue()
 
@@ -82,7 +82,7 @@ class SystrayApp(object):
             import atexit
 
             def clean_exit():
-                logger.debug("clean exit")
+                # logger.debug("clean exit")
                 app.exit()
 
             atexit.register(clean_exit)

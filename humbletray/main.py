@@ -1,6 +1,5 @@
 from humbletray import layout, systray, chromeapp
 import justpy as jp
-import atexit
 
 wp = jp.WebPage(delete_flag=False)
 

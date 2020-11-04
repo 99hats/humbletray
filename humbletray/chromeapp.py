@@ -3,13 +3,6 @@ import shutil, logging
 import tempfile, subprocess
 from loguru import logger
 
-# handler = logging.StreamHandler()
-# handler.setFormatter(logging.Formatter("-%(asctime)s %(name)s [%(levelname)s]: %(message)s"))
-# handler.setLevel(logging.ERROR)
-# logger = logging.getLogger("guy")
-# logger.addHandler(handler)
-# logger.setLevel(logging.ERROR)
-
 
 class FULLSCREEN:
     pass
@@ -100,5 +93,3 @@ class ChromeApp:
         # ~ self._com(dict(method="Browser.close"))
         self._p.kill()
         sys.exit()
-
-

@@ -52,8 +52,9 @@ kwargs = {
 #################### BEGIN USER OVERRIDES ####################
 # Add your customizations in this section.
 
-kwargs["install_requires"] = ["justpy", "pystray", "loguru", "schedule"]
+kwargs["install_requires"] = ["schedule", "justpy", "pystray", "loguru"]
 kwargs["include_package_data"] = True
+
 ###################### END USER OVERRIDES ####################
 
 setup(**kwargs)
