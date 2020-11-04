@@ -1,9 +1,12 @@
+from typing import List
 from pystray import MenuItem, Menu
 import pystray, sys, os
 from PIL import Image
 import time
 from multiprocessing import Process, freeze_support, Queue
 import justpy as jp
+from humbletray import chromeapp
+from loguru import logger
 
 q = Queue()
 
@@ -42,37 +45,127 @@ def setup(icon):
         time.sleep(5)
 
 
-def run_gui(start_server):
+class SystrayIcon:
+    def __init__(self, icon, menu=[], exit=None):
+        self.icon = pystray.Icon("mon")
+        self.icon.title = "Tooltip"
+        self.icon.icon = Image.open(icon)
+        menu.append(("Exit", lambda: self.exit()))
+
+        menu_items = []
+        for name, action in menu:
+            menu_items.append(MenuItem(name, action))
+        self.icon.menu = Menu(*menu_items)
+
+        if exit:
+            self.exit = exit
+
+    def action(self):
+        print("action")
+
+    def exit(self):
+        self.icon.visible = False
+        self.icon.stop()
+
+    @staticmethod
+    def setup(icon):
+        icon.visible = True
+
+        i = 0
+        while icon.visible:
+            # Some payload code
+            print(i)
+            i += 1
+
+            time.sleep(5)
+
+    def run(self):
+        self.icon.run(self.setup)
+
+
+class SystrayApp(object):
+    def __init__(self, start_server, menu, fig):
+        self.start_server = start_server
+        self.menu = menu
+        self.fig = fig
+
+    def run(self):
+        freeze_support()
+        server = Process(target=self.start_server, args=(q,))
+        server.daemon = True
+        server.start()
+
+        def action():
+            print("gui action")
+            import atexit
+
+            def clean_exit():
+                logger.debug("clean exit")
+                app.exit()
+
+            atexit.register(clean_exit)
+            app = chromeapp.ChromeApp("http://localhost:8000", "humbletray", (800, 600), lockPort=None, chromeargs=[])
+
+        menu = [("Open App", action)]
+
+        icon = SystrayIcon(self.fig, menu)
+        icon.run()
+
+        server.terminate()
+        server.join(timeout=1.0)
+
+
+def run_gui_v3(start_server, menu=None, fig=fig_full_path):
+    app = SystrayApp(start_server, menu, fig)
+    app.run()
+
+
+def run_gui_v2(start_server, menu=None, fig=fig_full_path):
     freeze_support()
     server = Process(target=start_server, args=(q,))
-    # server.daemon = True
+    server.daemon = True
+    server.start()
+
+    def action():
+        print("gui action")
+        import atexit
+
+        def clean_exit():
+            logger.debug("clean exit")
+            app.exit()
+
+        atexit.register(clean_exit)
+        app = chromeapp.ChromeApp("http://localhost:8000", "humbletray", (800, 600), lockPort=None, chromeargs=[])
+
+    menu = [("Open App", action)]
+
+    icon = SystrayIcon(fig, menu)
+    icon.run()
+
+    server.terminate()
+    server.join(timeout=1.0)
+
+
+def run_gui(start_server, menu: List[Menu] = None, fig=fig_full_path):
+    freeze_support()
+    server = Process(target=start_server, args=(q,))
+    server.daemon = True
     server.start()
 
     icon = pystray.Icon("mon")
-    icon.menu = Menu(
-        MenuItem("Open", lambda: action),
-        MenuItem("Exit", lambda: exit_action(icon)),
-    )
-    icon.icon = Image.open(fig_full_path)
+
+    if not menu:
+        icon.menu = Menu(
+            MenuItem("Action", lambda: action),
+            MenuItem("Exit", lambda: exit_action(icon)),
+        )
+    else:
+        print("adding menu")
+        menu.append(MenuItem("Exit", lambda: exit_action(icon)))
+        icon.menu = Menu(*menu)
+    icon.icon = Image.open(fig)
     icon.title = "tooltip"
 
     icon.run(setup)
     server.terminate()
     server.join(timeout=1.0)
-
-
-wp = jp.WebPage(delete_flag=False)
-
-
-def start_server(iq):
-    wp.q = iq
-    wp.add(jp.Hello())
-    jp.justpy(lambda: wp)
-
-
-def main():
-    run_gui(start_server)
-
-
-if __name__ == "__main__":
-    main()

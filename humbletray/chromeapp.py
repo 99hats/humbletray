@@ -1,13 +1,14 @@
 import sys, os, webbrowser
 import shutil, logging
 import tempfile, subprocess
+from loguru import logger
 
-handler = logging.StreamHandler()
-handler.setFormatter(logging.Formatter("-%(asctime)s %(name)s [%(levelname)s]: %(message)s"))
-handler.setLevel(logging.ERROR)
-logger = logging.getLogger("guy")
-logger.addHandler(handler)
-logger.setLevel(logging.ERROR)
+# handler = logging.StreamHandler()
+# handler.setFormatter(logging.Formatter("-%(asctime)s %(name)s [%(levelname)s]: %(message)s"))
+# handler.setLevel(logging.ERROR)
+# logger = logging.getLogger("guy")
+# logger.addHandler(handler)
+# logger.setLevel(logging.ERROR)
 
 
 class FULLSCREEN:
@@ -83,7 +84,6 @@ class ChromeApp:
                 args.append("--disk-cache-size=0")
 
             logger.debug("CHROME APP-MODE: %s", " ".join(args))
-            # self._p = subprocess.Popen(args)
             self._p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
     def wait(self):
@@ -102,13 +102,3 @@ class ChromeApp:
         sys.exit()
 
 
-# def main_v1():
-
-#     app = ChromeApp(url, appname, size, lockPort=None, chromeargs=[])
-#     jp.justpy(serve)
-#     print("closing")
-#     try:
-#         app.wait()  # block
-#     except KeyboardInterrupt:
-#         print("-Process stopped")
-#     app.exit()
