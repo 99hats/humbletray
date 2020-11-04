@@ -25,11 +25,11 @@ fig_full_path = os.path.join(application_path, fig_name)
 
 
 class SystrayIconMenu:
-
-    def __init__(self, icon, menu=[], exit=None):
+    def __init__(self, icon, menu=[], exit=None, schedule=None):
         self.icon = pystray.Icon("mon")
         self.icon.title = "Tooltip"
         self.icon.icon = Image.open(icon)
+        self.schedule = schedule
         menu.append(("Exit", lambda: self.exit()))
 
         menu_items = []
@@ -47,13 +47,14 @@ class SystrayIconMenu:
         self.icon.visible = False
         self.icon.stop()
 
-    @staticmethod
-    def setup(icon):
+    def setup(self, icon):
         icon.visible = True
 
         i = 0
         while icon.visible:
             # Some payload code
+            if self.schedule:
+                self.schedule.run_pending()
             print(i)
             i += 1
 
@@ -64,11 +65,11 @@ class SystrayIconMenu:
 
 
 class SystrayApp(object):
-
-    def __init__(self, start_server, menu, icon):
+    def __init__(self, start_server, menu, icon, schedule=None):
         self.start_server = start_server
         self.menu = menu
         self.fig = icon
+        self.schedule = schedule
 
     def run(self):
         freeze_support()
@@ -89,16 +90,14 @@ class SystrayApp(object):
 
         menu = [("Open App", action)]
 
-        icon = SystrayIconMenu(self.fig, menu)
+        icon = SystrayIconMenu(self.fig, menu, schedule=self.schedule)
         icon.run()
 
         server.terminate()
         server.join(timeout=1.0)
 
 
-def run_gui(start_server, menu=None, fig=fig_full_path):
+def run_gui(start_server, menu=None, fig=fig_full_path, schedule=None):
     # Todo(Ksmith): add scheduler integration
-    app = SystrayApp(start_server, menu, fig)
+    app = SystrayApp(start_server, menu, fig, schedule)
     app.run()
-
-
