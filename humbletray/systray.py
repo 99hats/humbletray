@@ -24,28 +24,8 @@ else:
 fig_full_path = os.path.join(application_path, fig_name)
 
 
-def action():
-    print("action")
+class SystrayIconMenu:
 
-
-def exit_action(icon):
-    icon.visible = False
-    icon.stop()
-
-
-def setup(icon):
-    icon.visible = True
-
-    i = 0
-    while icon.visible:
-        # Some payload code
-        print(i)
-        i += 1
-
-        time.sleep(5)
-
-
-class SystrayIcon:
     def __init__(self, icon, menu=[], exit=None):
         self.icon = pystray.Icon("mon")
         self.icon.title = "Tooltip"
@@ -84,10 +64,11 @@ class SystrayIcon:
 
 
 class SystrayApp(object):
-    def __init__(self, start_server, menu, fig):
+
+    def __init__(self, start_server, menu, icon):
         self.start_server = start_server
         self.menu = menu
-        self.fig = fig
+        self.fig = icon
 
     def run(self):
         freeze_support()
@@ -108,64 +89,16 @@ class SystrayApp(object):
 
         menu = [("Open App", action)]
 
-        icon = SystrayIcon(self.fig, menu)
+        icon = SystrayIconMenu(self.fig, menu)
         icon.run()
 
         server.terminate()
         server.join(timeout=1.0)
 
 
-def run_gui_v3(start_server, menu=None, fig=fig_full_path):
+def run_gui(start_server, menu=None, fig=fig_full_path):
+    # Todo(Ksmith): add scheduler integration
     app = SystrayApp(start_server, menu, fig)
     app.run()
 
 
-def run_gui_v2(start_server, menu=None, fig=fig_full_path):
-    freeze_support()
-    server = Process(target=start_server, args=(q,))
-    server.daemon = True
-    server.start()
-
-    def action():
-        print("gui action")
-        import atexit
-
-        def clean_exit():
-            logger.debug("clean exit")
-            app.exit()
-
-        atexit.register(clean_exit)
-        app = chromeapp.ChromeApp("http://localhost:8000", "humbletray", (800, 600), lockPort=None, chromeargs=[])
-
-    menu = [("Open App", action)]
-
-    icon = SystrayIcon(fig, menu)
-    icon.run()
-
-    server.terminate()
-    server.join(timeout=1.0)
-
-
-def run_gui(start_server, menu: List[Menu] = None, fig=fig_full_path):
-    freeze_support()
-    server = Process(target=start_server, args=(q,))
-    server.daemon = True
-    server.start()
-
-    icon = pystray.Icon("mon")
-
-    if not menu:
-        icon.menu = Menu(
-            MenuItem("Action", lambda: action),
-            MenuItem("Exit", lambda: exit_action(icon)),
-        )
-    else:
-        print("adding menu")
-        menu.append(MenuItem("Exit", lambda: exit_action(icon)))
-        icon.menu = Menu(*menu)
-    icon.icon = Image.open(fig)
-    icon.title = "tooltip"
-
-    icon.run(setup)
-    server.terminate()
-    server.join(timeout=1.0)

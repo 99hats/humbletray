@@ -21,12 +21,11 @@ def open():
 
 def main():
 
-    # menu = [
-    #     MenuItem("Open", lambda: open()),
-    # ]
-    # systray.run_gui(start_server, menu)
-    # systray.run_gui_v2(start_server)
-    systray.run_gui_v3(start_server)
+    menu = [
+        MenuItem("Remote Open", lambda: open()),
+    ]
+
+    systray.run_gui(start_server, menu)
 
 
 if __name__ == "__main__":
