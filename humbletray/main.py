@@ -12,6 +12,7 @@ def serve(q):
 
 
 def main_v1():
+    global app
     if app is None:
         app = chromeapp.ChromeApp("http://localhost:8000", "humbletray", (800, 600), lockPort=None, chromeargs=[])
     systray.run_gui(serve)
