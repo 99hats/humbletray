@@ -1,4 +1,12 @@
-datas = [("./templates", "justpy/templates"), ("leaf.png", ".")]
+from pathlib import Path
+from PyInstaller.utils.hooks import get_package_paths
+
+# ok great, we're getting the templates directly from the horses mouth
+templates = Path(get_package_paths("justpy.templates")[1])
+leaf = Path(get_package_paths("humbletray")[1]) / "leaf.png"
+
+datas = [(str(leaf), "."), (templates, "justpy/templates")]
+
 hiddenimports = [
     "pystray._win32",
     "schedule",

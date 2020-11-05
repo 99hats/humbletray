@@ -2,6 +2,7 @@ from humbletray import layout, systray, chromeapp
 import justpy as jp
 
 wp = jp.WebPage(delete_flag=False)
+app = None
 
 
 def serve(q):
@@ -11,8 +12,8 @@ def serve(q):
 
 
 def main_v1():
-
-    app = chromeapp.ChromeApp("http://localhost:8000", "humbletray", (800, 600), lockPort=None, chromeargs=[])
+    if app is None:
+        app = chromeapp.ChromeApp("http://localhost:8000", "humbletray", (800, 600), lockPort=None, chromeargs=[])
     systray.run_gui(serve)
     print("closing")
     app.exit()
