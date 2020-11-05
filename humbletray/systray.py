@@ -13,28 +13,29 @@ q = Queue()
 
 fig_name = "leaf.png"
 
-# if getattr(sys, "frozen", False):
-#     application_path = os.path.dirname(sys.executable)
-# else:
-#     try:
-#         app_full_path = os.path.realpath(__file__)
-#         application_path = os.path.dirname(app_full_path)
-#     except NameError:
-#         application_path = os.getcwd()
-
-# fig_full_path = os.path.join(application_path, fig_name)
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
+if getattr(sys, "frozen", False):
+    application_path = os.path.dirname(sys.executable)
+else:
     try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
+        app_full_path = os.path.realpath(__file__)
+        application_path = os.path.dirname(app_full_path)
+    except NameError:
+        application_path = os.getcwd()
 
-    return os.path.join(base_path, relative_path)
+fig_full_path = os.path.join(application_path, fig_name)
+
+# def resource_path(relative_path):
+#     """ Get absolute path to resource, works for dev and for PyInstaller """
+#     try:
+#         # PyInstaller creates a temp folder and stores path in _MEIPASS
+#         base_path = sys._MEIPASS
+#     except Exception:
+#         base_path = os.path.abspath(".")
+
+#     return os.path.join(base_path, relative_path)
 
 
-fig_full_path = resource_path(fig_name)
+# fig_full_path = resource_path(fig_name)
 
 
 class SystrayIconMenu:
