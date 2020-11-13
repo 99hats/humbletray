@@ -1,15 +1,50 @@
 from contextlib import contextmanager
+import types
+from dataclasses import dataclass
 import justpy as jp
+import atexit
+
+
+# @contextmanager
+# def _(w):
+#     # to nest gui building
+#     yield w
+
+
+@dataclass
+class Menu:
+    icon: str
+    label: str
+    separator: bool
+    page: object
+
+
+def new__init__(self, *args, **kw):
+    print("new init")
+    self.__parent__ = kw.get("a")
+    self.__init__(*args, **kw)
 
 
 @contextmanager
-def _(w):
-    # to nest gui building
-    yield w
+def _(widget, *args, **kw):
+    def __webpage__(self):
+        a = self.a
+        while True:
+            if isinstance(a, jp.QuasarPage) or a is None:
+                return a
+            a = a.a
+
+    widget.__webpage__ = __webpage__
+    try:
+        yield widget
+    finally:
+        if kw.get("_finally"):
+            kw["_finally"]()
 
 
 class DefaultLayout(jp.QuasarPage):
     def __init__(self, **kwargs):
+        atexit.register(self.close)
         super().__init__(**kwargs)
         layout = jp.QLayout(view="hHh Lpr lff", classes="q-pa-md", style="height:300px", a=self)
 
@@ -40,6 +75,8 @@ class DefaultLayout(jp.QuasarPage):
         page_container = jp.QPageContainer(a=layout)
         self.content = jp.QPage(padding=True, a=page_container)
 
+    def close(self):
+        print("close", self)
 
 
 def main():
@@ -70,65 +107,38 @@ def main():
     def create_menu(menu_list, wp3):
         wp3.menu.delete_components()
         for i, menu in enumerate(menu_list):
-            qitem = jp.QItem(clickable=True, v_ripple=True, a=wp3.menu, click=menu["page"])
+            qitem = jp.QItem(clickable=True, v_ripple=True, a=wp3.menu, click=menu.page)
             qs1 = jp.QItemSection(avatar=True, a=qitem)
-            qs1 += jp.QIcon(name=menu["icon"])
-            qitem += jp.QItemSection(text=menu["label"])
-            if menu["separator"]:
+            qs1 += jp.QIcon(name=menu.icon)
+            qitem += jp.QItemSection(text=menu.label)
+            if menu.separator:
                 wp3.menu += jp.QSeparator(key="sep" + str(i))
 
     def app():
+        menu_list = [
+            Menu("inbox", "Inbox", True, foo),
+            Menu("send", "Outbox", False, index),
+            Menu("delete", "Trash", False, foo),
+            Menu("error", "Spam", True, index),
+            Menu("settings", "Settings", True, foo),
+            Menu("feedback", "Send Feedback", True, foo),
+            Menu("help", "Help", True, foo),
+        ]
 
         wp = create_wp()  # if you want separate web sessions
-        menu_list = [
-            {"icon": "inbox", "label": "Inbox", "separator": True, "page": foo},
-            {"icon": "send", "label": "Outbox", "separator": False, "page": index},
-            {"icon": "delete", "label": "Trash", "separator": False, "page": foo},
-            {"icon": "error", "label": "Spam", "separator": True, "page": index},
-            {
-                "icon": "settings",
-                "label": "Settings",
-                "separator": False,
-                "page": foo,
-            },
-            {
-                "icon": "feedback",
-                "label": "Send Feedback",
-                "separator": False,
-                "page": index,
-            },
-            {
-                "icon": "help",
-                "iconColor": "primary",
-                "label": "Help",
-                "separator": False,
-                "page": foo,
-            },
-        ]
         create_menu(menu_list, wp)
 
         class msg(object):  # a weird bit since we're avoiding use of requests
             page = wp
 
         index(None, msg)
+        import pdb
+
+        # pdb.set_trace()
         return wp
 
     jp.justpy(app)
-    # japp = jp.app
-    # jp.justpy(app, start_server=False)
-    # from starlette.testclient import TestClient
-    # from starlette.testclient import TestClient
 
-    # def test_app():
-    #     client = TestClient(japp)
-    #     response = client.get("/")
-    #     assert response.status_code == 200
-    #     print(response.status_code)
-    #     import pdb
-
-    #     pdb.set_trace()
-
-    # test_app()
 
 if __name__ == "__main__":
     main()

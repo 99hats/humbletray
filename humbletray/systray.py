@@ -6,36 +6,39 @@ import time
 from multiprocessing import Process, freeze_support, Queue
 import justpy as jp
 from humbletray import chromeapp
-
-# from loguru import logger
+from dataclasses import dataclass
+from loguru import logger
 
 q = Queue()
 
 fig_name = "leaf.png"
 
-if getattr(sys, "frozen", False):
-    application_path = os.path.dirname(sys.executable)
-else:
+
+@dataclass
+class Notification:
+    title: str
+    message: str
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
     try:
-        app_full_path = os.path.realpath(__file__)
-        application_path = os.path.dirname(app_full_path)
-    except NameError:
-        application_path = os.getcwd()
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        if getattr(sys, "frozen", False):
+            application_path = os.path.dirname(sys.executable)
+        else:
+            try:
+                app_full_path = os.path.realpath(__file__)
+                application_path = os.path.dirname(app_full_path)
+            except NameError:
+                application_path = os.getcwd()
 
-fig_full_path = os.path.join(application_path, fig_name)
-
-# def resource_path(relative_path):
-#     """ Get absolute path to resource, works for dev and for PyInstaller """
-#     try:
-#         # PyInstaller creates a temp folder and stores path in _MEIPASS
-#         base_path = sys._MEIPASS
-#     except Exception:
-#         base_path = os.path.abspath(".")
-
-#     return os.path.join(base_path, relative_path)
+    return os.path.join(application_path, relative_path)
 
 
-# fig_full_path = resource_path(fig_name)
+fig_full_path = resource_path(fig_name)
 
 
 class SystrayIconMenu:
@@ -71,6 +74,13 @@ class SystrayIconMenu:
                 self.schedule.run_pending()
             print(i)
             i += 1
+            if not q.empty():
+                print("q not empty")
+                msg = q.get()
+
+                print(msg)
+                if type(msg) == Notification:
+                    self.icon.notify(msg.message, msg.title)
 
             time.sleep(5)
 
@@ -96,7 +106,7 @@ class SystrayApp(object):
             import atexit
 
             def clean_exit():
-                # logger.debug("clean exit")
+                logger.debug("clean exit")
                 app.exit()
 
             atexit.register(clean_exit)
@@ -112,6 +122,5 @@ class SystrayApp(object):
 
 
 def run_gui(start_server, menu=None, fig=fig_full_path, schedule=None):
-    # Todo(Ksmith): add scheduler integration
     app = SystrayApp(start_server, menu, fig, schedule)
     app.run()

@@ -1,4 +1,5 @@
 import sys, os, webbrowser
+from typing import Text
 import shutil, logging
 import tempfile, subprocess
 from loguru import logger
@@ -11,7 +12,7 @@ class FULLSCREEN:
 CHROMECACHE = ".cache"
 size = (800, 600)
 
-
+# from Guy
 class ChromeApp:
     def __init__(self, url, appname="driver", size=None, lockPort=None, chromeargs=[]):
         def find_chrome_win():
@@ -93,3 +94,34 @@ class ChromeApp:
         # ~ self._com(dict(method="Browser.close"))
         self._p.kill()
         sys.exit()
+
+
+def open_browser():
+    """Returns ChromeApp instance
+    or None if Chrome is not installed
+    in which case the system browser is used.
+    """
+    try:
+        # we need to keep an instance handle on this or it will immediately self-destruct
+        return ChromeApp("http://localhost:8000", "humbletray", (800, 600), lockPort=None, chromeargs=[])
+    except:
+        # returns None because it is external process
+        import webbrowser, time
+
+        webbrowser.open("http://localhost:8000")
+        return None
+
+
+if __name__ == "__main__":
+    import justpy as jp
+    from multiprocessing import Process
+
+    wp = jp.WebPage()
+    jp.Div(text="Success", a=wp)
+
+    def start_server():
+        jp.justpy(lambda: wp)
+
+    browser = open_browser()
+
+    jp.justpy(lambda: wp)

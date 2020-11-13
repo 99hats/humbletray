@@ -8,6 +8,7 @@ app = None
 def serve(q):
     print("serve")
     jp.Div(text="Success", a=wp)
+    jp.Hello(a=wp)
     jp.justpy(lambda: wp)
 
 
